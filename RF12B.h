@@ -20,7 +20,7 @@ class RF12B {
 	    void rxISR();
 		void FIFOReset();
 		void sendPacket(byte * buf, byte length, byte id=0, uint16_t seq=0);
-		void sendPacket(RFPacket){};
+		void sendPacket(RFPacket *){};
 		RFPacket recvPacket();
 		unsigned int writeCmd(unsigned int cmd);
 		void changeMode(int _mode);

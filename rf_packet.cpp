@@ -1,31 +1,19 @@
 #include "rf_packet.h"
 
-RFPacket::RFPacket() {
-	_crc = 0;
-	_valid = false;
-	_size = 0;
-}
-
 RFPacket::RFPacket(byte buf[],byte size) {
 	fromBuffer(buf,size);
 }
 
 void RFPacket::fromBuffer(byte buf[],byte size) {
-	//byte buf[254];
-	//memcpy(buf,b,size);
-	Serial.println("Packet from buffer");
-	Serial.println(_size);
-	_size = size;//buf[SIZE_OFFSET];//buf[SIZE_OFFSET];
+	_size = size;
 	_crc = 0;
+	
 	// Sanity check size
 	if (_size == -1 || _size <= 0 || _size < buf[SIZE_OFFSET]) {
 		Serial.print("Size error: ");
 		Serial.println(_size);
 		return;
 	}
-	Serial.print("s:");
-	Serial.println(_size);
-	
 	_crc = crc8(_crc, _size);
 	
 	_id = buf[ID_OFFSET];
@@ -42,10 +30,7 @@ void RFPacket::fromBuffer(byte buf[],byte size) {
 	}
 	
 	// CRC8 byte
-	_rcrc = buf[CRC_OFFSET];//buf[_size];
-	Serial.print("s:");
-	Serial.println(_size);
-
+	_rcrc = buf[CRC_OFFSET];
 }
 
 bool RFPacket::valid() {
@@ -70,32 +55,47 @@ unsigned char RFPacket::crc8(unsigned char crc, unsigned char data) {
 	return crc;
 }
 
+byte RFPacket::dataSize() {
+	return DATA_LENGTH;
+}
+
+byte RFPacket::getID() {
+	return _id;
+}
+
+uint16_t RFPacket::getSeq() {
+	return _seq;
+}
+
+void RFPacket::getData(byte buf[], byte size) {
+	memcpy(buf, _data,size);
+}
 
 void RFPacket::dump() {
-	Serial.print("PACKET START: ");
-	Serial.print("LENGTH: ");
+	Serial.println("PACKET START: ");
+	Serial.print("   LENGTH: ");
 	Serial.println(_size,DEC);
-	Serial.print("ID: ");
+	Serial.print("   ID: ");
 	Serial.println(_id,DEC);
-	Serial.print("SEQ: ");
+	Serial.print("   SEQ: ");
 	Serial.println(_seq,DEC);
 	
 	for (int i=0; i<DATA_LENGTH; i++) {
-		Serial.print("DATA[");
+		Serial.print("   DATA[");
 		Serial.print(i);
 		Serial.print("]: ");
 		Serial.println((char)_data[i]);
 	}
 	
-	Serial.print("CRC: ");
+	Serial.print("   CRC: ");
 	Serial.println(_rcrc,HEX);
-	Serial.print("CRC(calc): ");
+	Serial.print("   CRC(calc): ");
 	Serial.println(_crc,HEX);
 	
 	if (valid()) {
-		Serial.println("PACKET VALID");
+		Serial.println("   PACKET VALID");
 	} else {
-		Serial.println("PACKET INVALID");
+		Serial.println("   PACKET INVALID");
 	}
-	Serial.print("PACKET END: ");
+	Serial.println("PACKET END: ");
 }

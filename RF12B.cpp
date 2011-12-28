@@ -1,9 +1,7 @@
 #include "CircularBuffer.h"
 #include "RF12B.h"
 
-RF12B::RF12B() {
-	
-}
+RF12B::RF12B() {}
 
 void RF12B::begin() {
 	_mode = RX;
