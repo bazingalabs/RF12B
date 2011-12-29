@@ -6,4 +6,11 @@ The code is based on the rf12 tutorial from https://loee.jottit.com/rfm12b_and_a
 for examples see the examples directory
 
  
+## Installation
+To install this library follow the steps below
 
+1. Go to your arduino libraries directory
+2. Clone the repository
+<code>git clone git@github.com:erikkallen/RF12B.git</code>
+3. Restart Arduino IDE if it was running
+4. The library should now be listed in the menu Sketch -> Import library and Examples under File -> Examples
