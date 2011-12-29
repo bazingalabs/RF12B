@@ -6,30 +6,20 @@
 # Datatypes (KEYWORD1)
 #######################################
 
-RF12	KEYWORD1
+RF12		KEYWORD1
+RFPacket	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
 
-begin	KEYWORD2
-clear	KEYWORD2
-home	KEYWORD2
-print	KEYWORD2
-setCursor	KEYWORD2
-cursor	KEYWORD2
-noCursor	KEYWORD2
-blink	KEYWORD2
-noBlink	KEYWORD2
-display	KEYWORD2
-noDisplay	KEYWORD2
-autoscroll	KEYWORD2
-noAutoscroll	KEYWORD2
-leftToRight	KEYWORD2
-rightToLeft	KEYWORD2
-scrollDisplayLeft	KEYWORD2
-scrollDisplayRight	KEYWORD2
-createChar	KEYWORD2
+begin			KEYWORD2
+sendPacket		KEYWORD2
+recvPacket		KEYWORD2
+setFrequency	KEYWORD2
+setDatarate		KEYWORD2
+setOutputPower	KEYWORD2
+packetAvailable	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
