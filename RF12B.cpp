@@ -131,8 +131,6 @@ void RF12B::sendPacket(byte * buf, byte length, byte id, uint16_t seq) {
 		crc = crc8(crc, buf[i]);
 	}
 	rfSend(crc);
-	Serial.print("CRC: ");
-	Serial.println(crc,HEX);
       
 	rfSend(0xAA); // DUMMY BYTES
 	rfSend(0xAA);

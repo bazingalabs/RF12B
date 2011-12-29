@@ -34,10 +34,7 @@ class RFPacket {
 		void dump();
 		byte dataSize();
 	    inline operator const char *() {
-			char tmp[BUFFER_SIZE];
-			memcpy(tmp,_data,DATA_LENGTH);
-			tmp[DATA_LENGTH] = '\0'; 
-			return tmp; 
+			return (char *)_data; 
 		}
 		byte getID();
 		uint16_t getSeq();

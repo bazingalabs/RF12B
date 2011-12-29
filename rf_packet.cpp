@@ -7,7 +7,8 @@ RFPacket::RFPacket(byte buf[],byte size) {
 void RFPacket::fromBuffer(byte buf[],byte size) {
 	_size = size;
 	_crc = 0;
-	
+	// Clear buffer
+	memset(_data, '\0', sizeof(_data));
 	// Sanity check size
 	if (_size == -1 || _size <= 0 || _size < buf[SIZE_OFFSET]) {
 		Serial.print("Size error: ");
