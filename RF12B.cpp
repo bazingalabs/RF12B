@@ -1,4 +1,3 @@
-#include "CircularBuffer.h"
 #include "RF12B.h"
 
 RF12B::RF12B() {}
@@ -32,31 +31,43 @@ void RF12B::rfInit() {
 	pinMode(NIRQ_PIN, INPUT);
 	pinMode(nFFS_PIN, INPUT);
   
-	writeCmd(0x80E7); //EL,EF,868band,12.0pF
-    //if (MODE) {
-	writeCmd(0x8299); //er,!ebb,ET,ES,EX,!eb,!ew,DC // receive
-    //} else {
-    //  writeCmd(0x8239); //!er,!ebb,ET,ES,EX,!eb,!ew,DC
-    //}
-	writeCmd(0xA640); //frequency select
-	writeCmd(0xC647); //4.8kbps
-	writeCmd(0x94A0); //VDI,FAST,134kHz,0dBm,-103dBm
-	writeCmd(0xC2AC); //AL,!ml,DIG,DQD4
-	writeCmd(0xCA81); //FIFO8,SYNC,!ff,DR
-	writeCmd(0xCED4); //SYNC=2DD4
-	writeCmd(0xC483); //@PWR,NO RSTRIC,!st,!fi,OE,EN
-	writeCmd(0x9850); //!mp,90kHz,MAX OUT
-	writeCmd(0xCC17); //OB1, COB0, LPX, Iddy, CDDITCBW0
-	writeCmd(0xE000); //NOT USED
-	writeCmd(0xC800); //NOT USED
-	writeCmd(0xC040); //1.66MHz,2.2V
-	//attachInterrupt(0, rxISR,FALLING);
+	// Set default values for each register
+	*((uint16_t*) & _config_reg)          = 0x80E7;	//EL,EF,868band,12.0pF
+	*((uint16_t*) & _pwr_mgmt_reg)        = 0x8299; //er,!ebb,ET,ES,EX,!eb,!ew,DC // receive
+	*((uint16_t*) & _freq_set_reg)        = 0xA640; //frequency select
+	*((uint16_t*) & _data_rate_reg)       = 0xC647; //4.8kbps
+	*((uint16_t*) & _recv_ctrl_reg)       = 0x94A0; //VDI,FAST,134kHz,0dBm,-103dBm
+	*((uint16_t*) & _data_filter_reg)     = 0xC2AC; //AL,!ml,DIG,DQD4
+	*((uint16_t*) & _fifo_reset_reg)      = 0xCA81; //FIFO8,SYNC,!ff,DR
+    *((uint16_t*) & _sync_pat_reg)	      = 0xCED4; //SYNC=2DD4
+	*((uint16_t*) & _afc_reg)             = 0xC483; //@PWR,NO RSTRIC,!st,!fi,OE,EN
+	*((uint16_t*) & _tx_conf_reg)         = 0x9850; //!mp,90kHz,MAX OUT
+	*((uint16_t*) & _pll_set_reg)         = 0xCC17; //OB1, COB0, LPX, Iddy, CDDIT CBW0
+	*((uint16_t*) & _wkup_tmr_reg)        = 0xE000; //NOT USED
+	*((uint16_t*) & _low_dut_reg)         = 0xC800; //NOT USED
+	*((uint16_t*) & _low_bat_reg)         = 0xC040; //1.66MHz,2.2V
+	
+	writeCmd(_config_reg); 
+	writeCmd(_pwr_mgmt_reg); 
+	writeCmd(_freq_set_reg); 
+	writeCmd(_data_rate_reg); 
+	writeCmd(_recv_ctrl_reg); 
+	writeCmd(_data_filter_reg); 
+	writeCmd(_fifo_reset_reg); 
+	writeCmd(_sync_pat_reg); 
+	writeCmd(_afc_reg); 
+	writeCmd(_tx_conf_reg); 
+	writeCmd(_pll_set_reg); 
+	writeCmd(_wkup_tmr_reg); 
+	writeCmd(_low_dut_reg); 
+	writeCmd(_low_bat_reg); 
+
 	attachInterrupt(1, rxISRFunc,RISING);
 }
 
 void RF12B::rfSend(unsigned char data){
 	while(digitalRead(NIRQ_PIN) == HIGH);
-	writeCmd(0xB800 + data);
+	writeCmd(TX_REG_WRITE + data);
 }
 boolean RF12B::packetAvailable() {
 	return _packet_received; 
@@ -70,16 +81,16 @@ void RF12B::rxISR() {
 		
 		switch (_state) {
 			case STATE_LENGTH:
-				if ( (writeCmd(0x0000)&0x8000) ) {
-					_remaining = writeCmd(0xB000)&0x00FF;
+				if ( status()->tx_ready ) {
+					_remaining = writeCmd(READ_FIFO)&0x00FF;
 					_recv_buffer[SIZE_OFFSET] = _remaining;
 					_state = READ_DATA;
 				}
 				_r_buf_pos = 0;
 			break;
 			case READ_DATA:
-				if ( (writeCmd(0x0000)&0x8000) ) {
-					_recv_buffer[SIZE_OFFSET+1+_r_buf_pos] = writeCmd(0xB000)&0x00FF;
+				if ( status()->tx_ready ) {
+					_recv_buffer[SIZE_OFFSET+1+_r_buf_pos] = writeCmd(READ_FIFO)&0x00FF;
 					_remaining--;
 				}
 				_r_buf_pos++;
@@ -92,12 +103,13 @@ void RF12B::rxISR() {
           
 		}
 	}
-    
 }
 
 void RF12B::FIFOReset() {
-	writeCmd(0xCA81);
-	writeCmd(0xCA83);
+	_fifo_reset_reg.enable_fifo_fill = false;
+	writeCmd(_fifo_reset_reg);
+	_fifo_reset_reg.enable_fifo_fill = true;
+	writeCmd(_fifo_reset_reg);
 }
 
 
@@ -105,7 +117,7 @@ void RF12B::sendPacket(byte * buf, byte length, byte id, uint16_t seq) {
 	changeMode(TX);
 	byte crc = 0;
   
-	writeCmd(0x0000);
+	status();
 	rfSend(0xAA); // PREAMBLE
 	rfSend(0xAA);
 	rfSend(0xAA);
@@ -138,7 +150,7 @@ void RF12B::sendPacket(byte * buf, byte length, byte id, uint16_t seq) {
       
       /* Back to receiver mode */
 	changeMode(RX);
-	delay(10);
+	//delay(5);
 	status();
       
 }
@@ -146,11 +158,42 @@ void RF12B::sendPacket(byte * buf, byte length, byte id, uint16_t seq) {
   
 RFPacket RF12B::recvPacket() {
 	_packet_received = false;
-	//byte buf[254];
-	//memcpy(buf,recv_buffer,r_buf_pos);
+	
 	return RFPacket(_recv_buffer,_r_buf_pos);
 }
-  
+
+
+/**
+*	Set frequency
+* Boundries  	433MHz: 430.09 - 439.7575
+*				868MHz: 860.18 - 879.515
+*				915MHz: 900.27 - 929.2725
+*	
+* @param frequency to set
+*/
+void RF12B::setFrequency(float ffreq) {
+	float freq = ffreq;
+	uint8_t band = 0;
+	uint16_t f = 0;
+	if (freq > 430.09 && freq < 439.7575) {
+		freq = freq - 430.0;
+		f = freq / 0.0025;
+		band = 1;
+	} else if (freq > 860.18 && freq < 879.515) {
+		freq = freq - 860.0;
+		f = freq / 0.0050;
+		band = 2;
+	}	else if (freq > 900.27 && freq < 929.2725) {
+		freq = freq - 900.0;
+		f = freq / 0.0075;
+		band = 3;
+	}
+	
+	_freq_set_reg.freq = f;
+	_config_reg.band = band;
+	writeCmd(_freq_set_reg);
+	writeCmd(_config_reg);
+} 
   
 unsigned int RF12B::writeCmd(unsigned int cmd) {
 	digitalWrite(CS_PIN,LOW);
@@ -164,9 +207,13 @@ unsigned int RF12B::writeCmd(unsigned int cmd) {
 void RF12B::changeMode(int mode) {
 	_mode = mode;
 	if (_mode == TX) {
-		writeCmd(0x8239); //!er,!ebb,ET,ES,EX,!eb,!ew,DC
+		_pwr_mgmt_reg.enable_rx = false;
+		_pwr_mgmt_reg.enable_tx = true;
+		writeCmd(_pwr_mgmt_reg);
 	} else { /* mode == RX */
-		writeCmd(0x8299); //er,!ebb,ET,ES,EX,!eb,!ew,DC
+		_pwr_mgmt_reg.enable_rx = true;
+		_pwr_mgmt_reg.enable_tx = false;
+		writeCmd(_pwr_mgmt_reg);
 	}
 }
 
@@ -182,7 +229,8 @@ unsigned char RF12B::crc8(unsigned char crc, unsigned char data) {
 	return crc;
 }
 
-unsigned int RF12B::status() {
-	return writeCmd(0x0000);
+struct RF12B::StatusReg * RF12B::status() {
+	*((uint16_t*) & _status_reg) = writeCmd(0x0000); 
+	return & _status_reg;
 }
 RF12B RF12;

@@ -2,7 +2,6 @@
 #define RF_PACKET_H
 
 #include <stdint.h>
-#include "CircularBuffer.h"
 #include "Arduino.h"
 #include <Printable.h>
 #include <stdio.h>
