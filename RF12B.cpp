@@ -69,10 +69,10 @@ void RF12B::rfSend(unsigned char data){
 	while(digitalRead(NIRQ_PIN) == HIGH);
 	writeCmd(TX_REG_WRITE + data);
 }
-boolean RF12B::packetAvailable() {
+bool RF12B::packetAvailable() {
 	return _packet_received; 
 }
-boolean RF12B::rfAvailable() {
+bool RF12B::rfAvailable() {
 	return _r_buf_pos;
 }
   

@@ -12,38 +12,32 @@ class RF12B {
 	public:
 		RF12B();
 		void begin();
-		void portInit();
-		void rfInit() ;
-		void rfSend(unsigned char data);
-		boolean packetAvailable();
-		boolean rfAvailable();
-	    void rxISR();
-		void FIFOReset();
+		bool packetAvailable();
 		void sendPacket(byte * buf, byte length, byte id=0, uint16_t seq=0);
 		void sendPacket(RFPacket *){};
-		RFPacket recvPacket();
-		unsigned int writeCmd(unsigned int cmd);
-		template <typename T> uint16_t writeCmd(T c) {
-			return writeCmd(*(uint16_t *) &c);
-		}	
-		void changeMode(int _mode);
-		
+		RFPacket recvPacket();	
 	    void setFrequency(float freq = 868.0);
 		void setDatarate(uint16_t baud);
 		void setOutputPower(uint8_t p);
-		
-		unsigned char crc8(unsigned char crc, unsigned char data);
-		static void callbackISR();
-
+		void rxISR();
 	private:
 		int _mode;
-		boolean _rfa;
+		bool _rfa;
 		byte _remaining;
 		byte _state;
-		boolean _packet_received;
+		bool _packet_received;
 		byte _recv_buffer[BUFFER_SIZE];
 		byte _r_buf_pos;
 	protected:
+		void portInit();
+		void rfInit() ;
+		void rfSend(unsigned char data);
+		bool rfAvailable();
+		void FIFOReset();
+		unsigned char crc8(unsigned char crc, unsigned char data);
+		void changeMode(int _mode);
+		unsigned int writeCmd(unsigned int cmd);
+		template <typename T> uint16_t writeCmd(T c) {return writeCmd(*(uint16_t *) &c);}
 		struct ConfigReg {
 				enum {
 					B433=1,B868,B915
