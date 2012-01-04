@@ -35,6 +35,9 @@ class RFPacket {
 	    inline operator const char *() {
 			return (char *)_data; 
 		}
+	    // compare to another string
+	    bool operator==(const char *str) 
+	    { return _size > 0 && !strcmp((char *)_data, str); }
 		byte getID();
 		uint16_t getSeq();
 		void getData(byte buf[], byte size);
