@@ -17,33 +17,35 @@ To install this library follow the steps below
 
 ## Usage
 First include the rf12B, rf_packet and SPI library
-<code>
-#include <SPI.h>
-#include <RF12B.h>
-#include <rf_packet.h>
-</code>
 
+```cpp
+    #include <SPI.h>
+    #include <RF12B.h>
+    #include <rf_packet.h>
+```
 In setup initialize the library by calling begin optionally set things like frequency etc.
-<code>
-void setup() {	
-	Serial.begin(57600);
-	RF12.begin();
-}
-</code>
 
+```cpp
+    void setup() {	
+    	Serial.begin(57600);
+    	RF12.begin();
+    }
+```
 Now send a packet by calling sendPacket
-<code>
-RF12.sendPacket("hello", 4);
-</code>
+
+```cpp
+    RF12.sendPacket("hello", 4);
+```
 
 And receive with
-<code>
-if (RF12.packetAvailable()) {
-		RFPacket p = RF12.recvPacket();
-		// Only print valid packets
-		if (p.valid()) {
-			Serial.println("Received:");
-			Serial.print(p);
-		}
-	}
-</code>
+
+```cpp
+    if (RF12.packetAvailable()) {
+    	RFPacket p = RF12.recvPacket();
+        // Only print valid packets
+        if (p.valid()) {
+    		Serial.println("Received:");
+    		Serial.print(p);
+    	}
+    }
+```
