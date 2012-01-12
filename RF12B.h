@@ -19,6 +19,7 @@ class RF12B {
 	    void setFrequency(float freq = 868.0);
 		void setDatarate(uint16_t baud);
 		void setOutputPower(uint8_t p);
+		void setChannel(uint8_t channel);
 		void rxISR();
 	private:
 		int _mode;
@@ -172,7 +173,7 @@ class RF12B {
 				uint16_t pll_bandwidth   	: 1;
 				uint16_t unknown_2       	: 1;
 				uint16_t disable_dit     	: 1;
-		    uint16_t ph_det_delay    		: 1;
+		    	uint16_t ph_det_delay    	: 1;
 				uint16_t unknown_1       	: 1;
 				uint16_t clk_freq        	: 2;
 		    uint16_t cmd             		: 9;   
