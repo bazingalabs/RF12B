@@ -2,13 +2,14 @@
 
 RF12B::RF12B() {}
 
-void RF12B::begin() {
+void RF12B::begin(float band) {
 	_mode = RX;
 	_rfa = false;
 	_remaining = 0;
 	_state = STATE_LENGTH;
 	_packet_received = false;
 	_r_buf_pos = 0;
+	_band = band;
 	
 	delay(100);
 	portInit();
@@ -147,8 +148,13 @@ void RF12B::setDatarate(uint16_t baud) {
 }
 
 void RF12B::setChannel(uint8_t channel) {
-	//TODO: Divide 433 - 439 by 30 as channels
-	// Calculate center fequenties
+	int channelFreq = 0;
+	// Channel between 1 and 30
+	if (channel >= 1 && channel <= 30) {
+		channelFreq = (channel * 0.2) + 0.1;
+	}
+
+	setFrequency(_band + channelFreq);
 }
 
 void RF12B::sendPacket(byte * buf, byte length, byte id, uint16_t seq) {

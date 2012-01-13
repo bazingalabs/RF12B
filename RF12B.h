@@ -11,7 +11,7 @@
 class RF12B {
 	public:
 		RF12B();
-		void begin();
+		void begin(float band=_433MHz);
 		bool packetAvailable();
 		void sendPacket(byte * buf, byte length, byte id=0, uint16_t seq=0);
 		void sendPacket(RFPacket *){};
@@ -29,6 +29,7 @@ class RF12B {
 		bool _packet_received;
 		byte _recv_buffer[BUFFER_SIZE];
 		byte _r_buf_pos;
+		float _band;
 	protected:
 		void portInit();
 		void rfInit() ;
