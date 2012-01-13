@@ -14,38 +14,3 @@ To install this library follow the steps below
 <code>git clone git@github.com:erikkallen/RF12B.git</code>
 3. Restart Arduino IDE if it was running
 4. The library should now be listed in the menu Sketch -> Import library and Examples under File -> Examples
-
-## Usage
-First include the rf12B, rf_packet and SPI library
-
-```cpp
-    #include <SPI.h>
-    #include <RF12B.h>
-    #include <rf_packet.h>
-```
-In setup initialize the library by calling begin optionally set things like frequency etc.
-
-```cpp
-    void setup() {	
-    	Serial.begin(57600);
-    	RF12.begin();
-    }
-```
-Now send a packet by calling sendPacket
-
-```cpp
-    RF12.sendPacket("hello", 4);
-```
-
-And receive with
-
-```cpp
-    if (RF12.packetAvailable()) {
-    	RFPacket p = RF12.recvPacket();
-        // Only print valid packets
-        if (p.valid()) {
-    		Serial.println("Received:");
-    		Serial.print(p);
-    	}
-    }
-```
