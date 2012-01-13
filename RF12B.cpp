@@ -112,6 +112,44 @@ void RF12B::FIFOReset() {
 	writeCmd(_fifo_reset_reg);
 }
 
+// Set datarate
+//BR=10000000/29/（R+1)/（1+cs*7)
+// Optimal cap values for datarate
+// 12 nF	8.2 nF		6.8 nF		3.3 nF		1.5 nF		680 pF		270 pF		150 pF		100 pF
+//1.2 kbps	2.4 kbps  	4.8 kbps	9.6 kbps	19.2 kbps	38.4 kbps	57.6 kbps	115.2 kbps	256 kbps
+
+void RF12B::setDatarate(uint16_t baud) {
+	_data_rate_reg.data_rate = (10000/29/(1+_data_rate_reg.cs*7)/baud)-1;
+
+	// Set correct bandwidth for datarate RX
+	if (baud <= 19200) {
+		// BW = 67kHz
+		_recv_ctrl_reg.baseband_bw = _recv_ctrl_reg.BBB67;
+	} else if (baud > 19200 && baud <= 57600) {
+		// BW = 134kHz
+		_recv_ctrl_reg.baseband_bw = _recv_ctrl_reg.BBB134;
+	} else {
+		// BW = 200kHz
+		_recv_ctrl_reg.baseband_bw = _recv_ctrl_reg.BBB200;
+	}
+
+	// Set correct bandwidth for datarate TX
+	if (baud < 86200) {
+		_pll_set_reg.pll_bandwidth = 0;
+	} else {
+		_pll_set_reg.pll_bandwidth = 1;
+	}
+	
+	//_data_rate_reg.cs = 0;
+	writeCmd(_data_rate_reg);
+	writeCmd(_recv_ctrl_reg);
+	writeCmd(_pll_set_reg);
+}
+
+void RF12B::setChannel(uint8_t channel) {
+	//TODO: Divide 433 - 439 by 30 as channels
+	// Calculate center fequenties
+}
 
 void RF12B::sendPacket(byte * buf, byte length, byte id, uint16_t seq) {
 	changeMode(TX);
