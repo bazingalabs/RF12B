@@ -9,6 +9,7 @@ void RF12B::begin() {
 	_state = STATE_LENGTH;
 	_packet_received = false;
 	_r_buf_pos = 0;
+	_id = 0;
 	
 	delay(100);
 	portInit();
@@ -151,7 +152,7 @@ void RF12B::setChannel(uint8_t channel) {
 	// Calculate center fequenties
 }
 
-void RF12B::sendPacket(byte * buf, byte length, byte id, uint16_t seq) {
+void RF12B::sendPacket(byte * buf, byte length, byte id, uint16_t seq, byte type) {
 	changeMode(TX);
 	byte crc = 0;
   
@@ -162,8 +163,8 @@ void RF12B::sendPacket(byte * buf, byte length, byte id, uint16_t seq) {
 	rfSend(0x2D); // SYNC
 	rfSend(0xD4);
 
-	rfSend(length+5);
-	crc = crc8(crc, length+5);
+	rfSend(length+PACKET_HEADER);
+	crc = crc8(crc, length+PACKET_HEADER);
 	
 	// Send ID
 	rfSend(id);
@@ -172,9 +173,12 @@ void RF12B::sendPacket(byte * buf, byte length, byte id, uint16_t seq) {
 	// Sequence number HI byte && LOW byte
 	rfSend(seq << 8);
 	rfSend(seq & 0xff);
-	
 	crc = crc8(crc, seq << 8);
 	crc = crc8(crc, seq & 0xff);
+
+	// Send type
+	rfSend(type);
+	crc = crc8(crc, type);
       
 	for(int i=0; i<length; i++) {
 		rfSend(buf[i]);
@@ -196,8 +200,13 @@ void RF12B::sendPacket(byte * buf, byte length, byte id, uint16_t seq) {
   
 RFPacket RF12B::recvPacket() {
 	_packet_received = false;
-	
-	return RFPacket(_recv_buffer,_r_buf_pos);
+	RFPacket p = RFPacket(_recv_buffer,_r_buf_pos);
+
+	if (p.getType() == DATA_PACKET) {
+		sendPacket((byte*)"",0,_id,p.getSeq(), ACK_PACKET);
+	}
+
+	return p;
 }
 
 

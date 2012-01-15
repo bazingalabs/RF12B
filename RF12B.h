@@ -13,7 +13,7 @@ class RF12B {
 		RF12B();
 		void begin();
 		bool packetAvailable();
-		void sendPacket(byte * buf, byte length, byte id=0, uint16_t seq=0);
+		void sendPacket(byte * buf, byte length, byte id=0, uint16_t seq=0, byte type=DATA_PACKET);
 		void sendPacket(RFPacket *){};
 		RFPacket recvPacket();	
 	    void setFrequency(float freq = 868.0);
@@ -29,6 +29,7 @@ class RF12B {
 		bool _packet_received;
 		byte _recv_buffer[BUFFER_SIZE];
 		byte _r_buf_pos;
+		uint8_t _id;
 	protected:
 		void portInit();
 		void rfInit() ;

@@ -23,6 +23,9 @@ void RFPacket::fromBuffer(byte buf[],byte size) {
 	_seq = (buf[SEQ_OFFSET] << 8) | buf[SEQ_OFFSET+1];//buf[SEQ_OFFSET];
 	_crc = crc8(_crc, _seq >> 8);
 	_crc = crc8(_crc, _seq & 0xff);
+
+	_type = buf[TYPE_OFFSET];
+	_crc = crc8(_crc, _type);
 	
 	// Copy data
 	for (int i=0; i<DATA_LENGTH; i++) {
@@ -64,6 +67,10 @@ byte RFPacket::getID() {
 	return _id;
 }
 
+byte RFPacket::getType() {
+	return _type;
+}
+
 uint16_t RFPacket::getSeq() {
 	return _seq;
 }
@@ -80,6 +87,13 @@ void RFPacket::dump() {
 	Serial.println(_id,DEC);
 	Serial.print("   SEQ: ");
 	Serial.println(_seq,DEC);
+	Serial.print("   TYPE: ");
+	if (_type == DATA_PACKET) {
+		Serial.println("data");
+	} else if (_type == ACK_PACKET) {
+		Serial.println("ack");
+	}
+	
 	
 	for (int i=0; i<DATA_LENGTH; i++) {
 		Serial.print("   DATA[");

@@ -10,9 +10,14 @@
 #define SIZE_OFFSET 0
 #define ID_OFFSET 1
 #define SEQ_OFFSET 2
-#define DATA_OFFSET 4
+#define TYPE_OFFSET 4
+#define DATA_OFFSET 5
 #define CRC_OFFSET _size - 1
-#define DATA_LENGTH _size - 5
+#define DATA_LENGTH _size - 6
+#define PACKET_HEADER 6
+
+#define DATA_PACKET 	1
+#define ACK_PACKET  	2
 
 class RFPacket {
 	public:
@@ -20,6 +25,7 @@ class RFPacket {
 			_crc = 0;
 			_valid = false;
 			_size = 0;
+			_type = DATA_PACKET;
 			
 		};
 		RFPacket(byte buf[],byte size);
@@ -28,6 +34,7 @@ class RFPacket {
 		//uint16_t getID();
 		uint16_t getSeqNr();
 		uint16_t getCRC();
+		uint8_t getType();
 		bool valid();
 		unsigned char crc8(unsigned char crc, unsigned char data);
 		void dump();
@@ -49,6 +56,7 @@ class RFPacket {
 		uint8_t _data[BUFFER_SIZE];
 		uint16_t _crc;
 		uint16_t _rcrc;
+		uint8_t _type;
 		bool _valid;
 };
 
