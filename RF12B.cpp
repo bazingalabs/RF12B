@@ -10,7 +10,7 @@ void RF12B::begin() {
 	_packet_received = false;
 	_r_buf_pos = 0;
 	
-	delay(200);
+	delay(100);
 	portInit();
 	rfInit();
 
