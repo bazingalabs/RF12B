@@ -2,7 +2,7 @@
 
 RF12B::RF12B() {}
 
-void RF12B::begin() {
+void RF12B::begin(float band) {
 	_mode = RX;
 	_rfa = false;
 	_remaining = 0;
@@ -10,6 +10,9 @@ void RF12B::begin() {
 	_packet_received = false;
 	_r_buf_pos = 0;
 	_id = 0;
+	_pan_id = 0xD4;
+	_band = band;
+
 	
 	delay(100);
 	portInit();
@@ -75,6 +78,13 @@ bool RF12B::packetAvailable() {
 }
 bool RF12B::rfAvailable() {
 	return _r_buf_pos;
+}
+
+void RF12B::setPanID(byte pan_id) {
+	_pan_id = pan_id;
+	_sync_pat_reg.sync_pat = _pan_id;
+
+	writeCmd(_sync_pat_reg);
 }
   
 void RF12B::rxISR() {
@@ -150,42 +160,36 @@ void RF12B::setDatarate(uint16_t baud) {
 void RF12B::setChannel(uint8_t channel) {
 	//TODO: Divide 433 - 439 by 30 as channels
 	// Calculate center fequenties
+    int channelFreq = 0;
+    // Channel between 1 and 30
+    if (channel >= 1 && channel <= 30) {
+        channelFreq = (channel * 0.2) + 0.1;
+    }
+
+    setFrequency(_band + channelFreq);
+
 }
 
-void RF12B::sendPacket(byte * buf, byte length, byte id, uint16_t seq, byte type) {
+void RF12B::send(byte * buf, byte length) {
 	changeMode(TX);
-	byte crc = 0;
   
 	status();
 	rfSend(0xAA); // PREAMBLE
 	rfSend(0xAA);
 	rfSend(0xAA);
+
 	rfSend(0x2D); // SYNC
-	rfSend(0xD4);
+	rfSend(_pan_id);
 
-	rfSend(length+PACKET_HEADER);
-	crc = crc8(crc, length+PACKET_HEADER);
-	
-	// Send ID
-	rfSend(id);
-	crc = crc8(crc, id);
-	
-	// Sequence number HI byte && LOW byte
-	rfSend(seq << 8);
-	rfSend(seq & 0xff);
-	crc = crc8(crc, seq << 8);
-	crc = crc8(crc, seq & 0xff);
-
-	// Send type
-	rfSend(type);
-	crc = crc8(crc, type);
-      
-	for(int i=0; i<length; i++) {
-		rfSend(buf[i]);
-		crc = crc8(crc, buf[i]);
+	rfSend(length+1);
+	//Serial.println("SENDING:");
+	//Serial.println("LENGTH:");
+	//Serial.println(length);
+	while(length--) {
+		//Serial.println(*buf);
+		rfSend(*buf++);
 	}
-	rfSend(crc);
-      
+
 	rfSend(0xAA); // DUMMY BYTES
 	rfSend(0xAA);
 	rfSend(0xAA);
@@ -194,17 +198,23 @@ void RF12B::sendPacket(byte * buf, byte length, byte id, uint16_t seq, byte type
 	changeMode(RX);
 	//delay(5);
 	status();
-      
 }
-  
-  
+
+/*void RF12B::sendPacket(RFPacket *packet) {
+	send((byte *)packet, packet->size());
+}*/
+
 RFPacket RF12B::recvPacket() {
 	_packet_received = false;
-	RFPacket p = RFPacket(_recv_buffer,_r_buf_pos);
+	//Serial.println("RECV PACKET:");
+	//Serial.println("SIZE:");
+	//Serial.println(_r_buf_pos-1);
 
-	if (p.getType() == DATA_PACKET) {
-		sendPacket((byte*)"",0,_id,p.getSeq(), ACK_PACKET);
-	}
+	RFPacket p = RFPacket(&_recv_buffer[1],_r_buf_pos-1);
+
+	//if (p.getType() == DATA_PACKET) {
+	//	sendPacket((byte*)"",0);
+	//}
 
 	return p;
 }

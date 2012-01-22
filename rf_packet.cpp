@@ -1,11 +1,54 @@
 #include "rf_packet.h"
 
 RFPacket::RFPacket(byte buf[],byte size) {
-	fromBuffer(buf,size);
+	_rcrc = 0;
+	parse(buf,size);
 }
 
-void RFPacket::fromBuffer(byte buf[],byte size) {
-	_size = size;
+RFPacket::RFPacket(byte * buf, byte length, byte id, uint16_t seq, byte type) {
+	byte crc = 0;
+	_rcrc = 0;
+  	rfpacket.p.crc = 0;
+	rfpacket.p.size = length + PACKET_HEADER_SIZE;
+	//crc = crc8(crc, rfpacket.p.size);
+	
+	// Send ID
+	rfpacket.p.id = id;
+	//crc = crc8(crc, rfpacket.p.id);
+	
+	// Sequence number HI byte && LOW byte
+	rfpacket.p.seq = seq;
+	//crc = crc8(crc, seq << 8);
+	//crc = crc8(crc, seq & 0xff);
+
+	// Send type
+	rfpacket.p.type = type;
+	//crc = crc8(crc, rfpacket.p.type);
+      
+	for(int i=0; i<length; i++) {
+		rfpacket.p.data[i] = buf[i];
+		//crc = crc8(crc, buf[i]);
+	}
+
+	for (int i = 0; i < rfpacket.p.size; ++i) {
+		crc = crc8(crc,rfpacket.buf[i]);
+	}
+	rfpacket.p.crc = crc;    
+}
+
+void RFPacket::parse(byte * buf,byte size) {
+	uint8_t crc = 0;
+	for (int i = 0; i < size; ++i)
+	{
+		rfpacket.buf[i] = buf[i];
+		if (&rfpacket.buf[i] == (uint8_t*)&rfpacket.p.crc) {
+			crc = crc8(crc,0);
+		} else {
+			crc = crc8(crc,buf[i]);
+		}
+	}
+	_rcrc = crc;
+	/*_size = size;
 	_crc = 0;
 	// Clear buffer
 	memset(_data, '\0', sizeof(_data));
@@ -34,12 +77,16 @@ void RFPacket::fromBuffer(byte buf[],byte size) {
 	}
 	
 	// CRC8 byte
-	_rcrc = buf[CRC_OFFSET];
+	_rcrc = buf[CRC_OFFSET];*/
+}
+
+uint8_t RFPacket::size() {
+	return rfpacket.p.size;
 }
 
 bool RFPacket::valid() {
 	// Check crc
-	if (_crc == _rcrc) {
+	if (rfpacket.p.crc == _rcrc) {
 		return true;
 	} else {
 		return false;
@@ -60,57 +107,59 @@ unsigned char RFPacket::crc8(unsigned char crc, unsigned char data) {
 }
 
 byte RFPacket::dataSize() {
-	return DATA_LENGTH;
+	return rfpacket.p.size-PACKET_HEADER_SIZE;
 }
 
 byte RFPacket::getID() {
-	return _id;
+	return rfpacket.p.id;
 }
 
 byte RFPacket::getType() {
-	return _type;
+	return rfpacket.p.type;
 }
 
 uint16_t RFPacket::getSeq() {
-	return _seq;
+	return rfpacket.p.seq;
 }
 
 void RFPacket::getData(byte buf[], byte size) {
-	memcpy(buf, _data,size);
+	memcpy(buf, rfpacket.p.data,size);
 }
 
 void RFPacket::dump() {
 	Serial.println("PACKET START: ");
 	Serial.print("   LENGTH: ");
-	Serial.println(_size,DEC);
+	Serial.println(rfpacket.p.size,DEC);
 	Serial.print("   ID: ");
-	Serial.println(_id,DEC);
+	Serial.println(rfpacket.p.id,DEC);
 	Serial.print("   SEQ: ");
-	Serial.println(_seq,DEC);
-	Serial.print("   TYPE: ");
+	Serial.println(rfpacket.p.seq,DEC);
+	Serial.print("   DataSize: ");
+	Serial.println(dataSize(),DEC);
+	/*Serial.print("   TYPE: ");
 	if (_type == DATA_PACKET) {
 		Serial.println("data");
 	} else if (_type == ACK_PACKET) {
 		Serial.println("ack");
 	}
+	*/
 	
-	
-	for (int i=0; i<DATA_LENGTH; i++) {
+	for (int i=0; i<dataSize(); i++) {
 		Serial.print("   DATA[");
 		Serial.print(i);
 		Serial.print("]: ");
-		Serial.println((char)_data[i]);
+		Serial.println((char)rfpacket.p.data[i]);
 	}
 	
 	Serial.print("   CRC: ");
-	Serial.println(_rcrc,HEX);
+	Serial.println(rfpacket.p.crc,HEX);
 	Serial.print("   CRC(calc): ");
-	Serial.println(_crc,HEX);
-	
+	Serial.println(_rcrc,HEX);
+	/*
 	if (valid()) {
 		Serial.println("   PACKET VALID");
 	} else {
 		Serial.println("   PACKET INVALID");
-	}
+	}*/
 	Serial.println("PACKET END: ");
 }

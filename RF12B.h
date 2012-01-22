@@ -11,15 +11,17 @@
 class RF12B {
 	public:
 		RF12B();
-		void begin();
+		void begin(float band=_433MHz);
 		bool packetAvailable();
 		void sendPacket(byte * buf, byte length, byte id=0, uint16_t seq=0, byte type=DATA_PACKET);
-		void sendPacket(RFPacket *){};
+		void sendPacket(RFPacket *);
+		void send(byte * buf, byte length);
 		RFPacket recvPacket();	
 	    void setFrequency(float freq = 868.0);
 		void setDatarate(uint16_t baud);
 		void setOutputPower(uint8_t p);
 		void setChannel(uint8_t channel);
+		void setPanID(byte pan_id);
 		void rxISR();
 	private:
 		int _mode;
@@ -29,7 +31,9 @@ class RF12B {
 		bool _packet_received;
 		byte _recv_buffer[BUFFER_SIZE];
 		byte _r_buf_pos;
+		byte _pan_id;
 		uint8_t _id;
+		float _band;
 	protected:
 		void portInit();
 		void rfInit() ;
