@@ -55,6 +55,7 @@ class RFPacket {
 		void dump();
 		byte dataSize();
 	    inline operator const char *() {
+	    	rfpacket.p.data[dataSize()] = '\0';
 			return (char *)rfpacket.p.data; 
 		}
 		inline operator byte *() {

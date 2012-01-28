@@ -16,7 +16,8 @@ void loop() {
 		char c = Serial.read();
 		buf[i++] = c;
 		if (c == '\n') {
-			RF12.sendPacket(buf, i);
+			RFPacket packet(buf, i, 1, 1,2);
+			RF12.send(packet, packet.size()); 
 			// Clear rest of buffer for easy printing
 			memset(&buf[i-1],'\0',50-i);
 			buf[i+1] = '\0';

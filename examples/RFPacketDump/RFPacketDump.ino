@@ -18,7 +18,8 @@ void loop() {
 		buf[i++] = c;
 		// On newline found start sending
 		if (c == '\n') {
-			RF12.sendPacket(buf, i);
+			RFPacket packet(buf, i, 1, 1,2);
+			RF12.send(packet, packet.size()); 
 			buf[i+1] = '\0';
 			Serial.print("Sent: ");
 			Serial.println((char *)buf);
