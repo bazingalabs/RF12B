@@ -34,7 +34,8 @@ In setup initialize the library by calling begin optionally set things like freq
 Now send a packet by calling sendPacket
 
 ```cpp
-    RF12.sendPacket("hello", 4);
+    RFPacket packet("hello", i, 1, 1,2);
+ 		 RF12.send(packet, packet.size()); 
 ```
 
 And receive with
