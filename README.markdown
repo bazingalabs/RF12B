@@ -13,7 +13,7 @@ To install this library follow the steps below
 
 1. Go to your arduino libraries directory
 2. Clone the repository
-<code>git clone git@github.com:erikkallen/RF12B.git</code>
+<code>git clone git@github.com:bazingalabs/RF12B.git</code>
 3. Restart Arduino IDE if it was running
 4. The library should now be listed in the menu Sketch -> Import library and Examples under File -> Examples
 
@@ -36,7 +36,7 @@ In setup initialize the library by calling begin optionally set things like freq
 Now send a packet by calling sendPacket
 
 ```cpp
-    RFPacket packet("hello", i, 1, 1,2);
+    RFPacket packet("hello", 5, 1, 1,2);
  		 RF12.send(packet, packet.size()); 
 ```
 
