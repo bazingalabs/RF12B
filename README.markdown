@@ -5,6 +5,8 @@ The code is based on the rf12 tutorial from https://loee.jottit.com/rfm12b_and_a
 
 for examples see the examples directory
 
+## Documentation
+For documentation check the wiki https://github.com/bazingalabs/RF12B/wiki
  
 ## Installation
 To install this library follow the steps below
