@@ -1,8 +1,8 @@
-# RF12B Library for Bazingalabs Roger
-This is a libray for the Roger board from Bazingalabs (http://www.bazingalabs.com)  
-The board uses the rf12b radio module from hoperf (http://www.hoperf.com)  
-The code is based on the rf12 tutorial from https://loee.jottit.com/rfm12b_and_avr_-_quick_start  
-
+# RF12B Library 
+This is a library for the rf12b radio module from hoperf (http://www.hoperf.com)
+It implements a easy to use Arduino style interface to the radio chip.
+The goal is to allow Arduino's to easily communicate with each other.  
+ 
 for examples see the examples directory
 
 ## Documentation
@@ -52,3 +52,7 @@ And receive with
     	}
     }
 ```
+
+## Thanks
+This is a libray for the Roger board from Bazingalabs (http://www.bazingalabs.com)  
+The code is based on the rf12 tutorial from https://loee.jottit.com/rfm12b_and_avr_-_quick_start  

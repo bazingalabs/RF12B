@@ -66,6 +66,14 @@ void RF12B::rfInit() {
 	writeCmd(_low_dut_reg); 
 	writeCmd(_low_bat_reg); 
 
+	enableISR();
+}
+
+void RF12B::disableISR() {
+	detachInterrupt(1);
+}
+
+void RF12B::enableISR() {
 	attachInterrupt(1, rxISRFunc,RISING);
 }
 

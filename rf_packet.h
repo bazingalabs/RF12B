@@ -51,7 +51,6 @@ class RFPacket {
 		uint16_t getCRC();
 		uint8_t getType();
 		bool valid();
-		unsigned char crc8(unsigned char crc, unsigned char data);
 		void dump();
 		byte dataSize();
 	    inline operator const char *() {
@@ -70,6 +69,7 @@ class RFPacket {
 		uint8_t size();
 		
 	private:
+		unsigned char crc8(unsigned char crc, unsigned char data);
 		//uint8_t _p_buffer[MAX_PACKET_SIZE];
 		uint8_t _size;
 		uint16_t _id;

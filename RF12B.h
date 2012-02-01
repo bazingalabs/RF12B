@@ -23,6 +23,8 @@ class RF12B {
 		void setChannel(uint8_t channel);
 		void setPanID(byte pan_id);
 		void rxISR();
+		void disableISR();
+		void enableISR();
 	private:
 		int _mode;
 		bool _rfa;
