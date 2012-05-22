@@ -23,7 +23,7 @@ void RF12B::begin(float band) {
 
 void RF12B::portInit() {
 	SPI.begin();
-	SPI.setClockDivider(SPI_CLOCK_DIV8);
+	SPI.setClockDivider(SPI_CLOCK_DIV4);
 	SPI.setDataMode(SPI_MODE0);
 }
 
@@ -280,6 +280,7 @@ void RF12B::changeMode(int mode) {
 		_pwr_mgmt_reg.enable_tx = false;
 		writeCmd(_pwr_mgmt_reg);
 	}
+	//delay(20);
 }
 
 unsigned char RF12B::crc8(unsigned char crc, unsigned char data) {

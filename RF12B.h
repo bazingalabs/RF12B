@@ -26,11 +26,11 @@ class RF12B {
 		void disableISR();
 		void enableISR();
 	private:
-		int _mode;
+		volatile int _mode;
 		bool _rfa;
 		byte _remaining;
-		byte _state;
-		bool _packet_received;
+		volatile byte _state;
+		volatile bool _packet_received;
 		byte _recv_buffer[BUFFER_SIZE];
 		byte _r_buf_pos;
 		byte _pan_id;

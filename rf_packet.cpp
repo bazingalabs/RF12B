@@ -36,6 +36,43 @@ RFPacket::RFPacket(byte * buf, byte length, byte id, uint16_t seq, byte type) {
 	rfpacket.p.crc = crc;    
 }
 
+
+RFPacket::RFPacket(CircularBuffer<byte,200> *  buf, byte size, byte id, uint16_t seq, byte type) {
+	byte crc = 0;
+	_rcrc = 0;
+  	rfpacket.p.crc = 0;
+	rfpacket.p.size = size + PACKET_HEADER_SIZE;
+	//Serial.println("Size");
+	//Serial.println(size);
+	//crc = crc8(crc, rfpacket.p.size);
+	
+	// Send ID
+	rfpacket.p.id = id;
+	//crc = crc8(crc, rfpacket.p.id);
+	
+	// Sequence number HI byte && LOW byte
+	rfpacket.p.seq = seq;
+	//crc = crc8(crc, seq << 8);
+	//crc = crc8(crc, seq & 0xff);
+
+	// Send type
+	rfpacket.p.type = type;
+	//crc = crc8(crc, rfpacket.p.type);
+      
+	for(int i=0; i<size; i++) {
+		rfpacket.p.data[i] = buf->pop();
+		//crc = crc8(crc, buf[i]);
+	}
+
+	for (int i = 0; i < rfpacket.p.size; ++i) {
+		crc = crc8(crc,rfpacket.buf[i]);
+	}
+	rfpacket.p.crc = crc;    
+}
+
+
+//RFPacket::RFPacket(CircularBuffer<byte, uint16_t> *  buf, byte id, uint16_t seq, byte type);
+
 void RFPacket::parse(byte * buf,byte size) {
 	uint8_t crc = 0;
 	for (int i = 0; i < size; ++i)
@@ -48,36 +85,6 @@ void RFPacket::parse(byte * buf,byte size) {
 		}
 	}
 	_rcrc = crc;
-	/*_size = size;
-	_crc = 0;
-	// Clear buffer
-	memset(_data, '\0', sizeof(_data));
-	// Sanity check size
-	if (_size == -1 || _size <= 0 || _size < buf[SIZE_OFFSET]) {
-		Serial.print("Size error: ");
-		Serial.println(_size);
-		return;
-	}
-	_crc = crc8(_crc, _size);
-	
-	_id = buf[ID_OFFSET];
-	_crc = crc8(_crc, _id);
-	
-	_seq = (buf[SEQ_OFFSET] << 8) | buf[SEQ_OFFSET+1];//buf[SEQ_OFFSET];
-	_crc = crc8(_crc, _seq >> 8);
-	_crc = crc8(_crc, _seq & 0xff);
-
-	_type = buf[TYPE_OFFSET];
-	_crc = crc8(_crc, _type);
-	
-	// Copy data
-	for (int i=0; i<DATA_LENGTH; i++) {
-		_data[i] = buf[DATA_OFFSET+i];
-		_crc = crc8(_crc, _data[i]);
-	}
-	
-	// CRC8 byte
-	_rcrc = buf[CRC_OFFSET];*/
 }
 
 uint8_t RFPacket::size() {

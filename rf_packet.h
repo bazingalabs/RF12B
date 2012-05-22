@@ -5,6 +5,7 @@
 #include "Arduino.h"
 #include <Printable.h>
 #include <stdio.h>
+#include "CircularBuffer.h"
 
 #define BUFFER_SIZE 254
 #define SIZE_OFFSET 0
@@ -21,6 +22,7 @@
 
 #define DATA_PACKET 	1
 #define ACK_PACKET  	2
+#define PIN_CHANGE		3
 
 class RFPacket {
 	public:
@@ -44,6 +46,9 @@ class RFPacket {
 		};
 		RFPacket(byte buf[],byte size);
 		RFPacket(byte * buf, byte length, byte id, uint16_t seq, byte type);
+		RFPacket(CircularBuffer<byte,200> *  buf,byte size, byte id, uint16_t seq, byte type);
+
+		//template RFPacket(CircularBuffer<byte, uint16_t> *  buf, byte id, uint16_t seq, byte type);
 		void parse(byte buf[], byte size);
 		uint16_t getSize();
 		//uint16_t getID();
@@ -59,6 +64,9 @@ class RFPacket {
 		}
 		inline operator byte *() {
 			return rfpacket.buf; 
+		}
+		inline byte * getData(){
+			return rfpacket.p.data;
 		}
 	    // compare to another string
 	    bool operator==(const char *str) 
