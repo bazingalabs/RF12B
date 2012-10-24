@@ -1,5 +1,5 @@
 # RF12B Library 
-This is a library for the rf12b radio module from hoperf (http://www.hoperf.com)
+This is a library for the rfm12b(or rf12b they also mix up the name) radio module from hoperf (http://www.hoperf.com)
 It implements a easy to use Arduino style interface to the radio chip.
 The goal is to allow Arduino's to easily communicate with each other.  
  
