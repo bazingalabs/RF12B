@@ -94,6 +94,10 @@ void RF12B::setPanID(byte pan_id) {
 
 	writeCmd(_sync_pat_reg);
 }
+ 
+ void RF12B::onoff(int value) {
+ 	writeCmd(value ? 0x823D : 0x820D);
+ }
   
 void RF12B::rxISR() {
 	if (_mode == RX) {
@@ -137,8 +141,13 @@ void RF12B::FIFOReset() {
 // 12 nF	8.2 nF		6.8 nF		3.3 nF		1.5 nF		680 pF		270 pF		150 pF		100 pF
 //1.2 kbps	2.4 kbps  	4.8 kbps	9.6 kbps	19.2 kbps	38.4 kbps	57.6 kbps	115.2 kbps	256 kbps
 
-void RF12B::setDatarate(uint16_t baud) {
-	_data_rate_reg.data_rate = (10000/29/(1+_data_rate_reg.cs*7)/baud)-1;
+void RF12B::setDatarate(uint32_t baud) {
+	float b = baud/1000;
+	_data_rate_reg.cs = 0;
+	_data_rate_reg.data_rate = ((10000/29/(1+_data_rate_reg.cs*7)/b)-1);
+	//Serial.println("Datarate");
+	//Serial.println(_data_rate_reg.data_rate);
+	//FIXME: Correct datarate formula
 
 	// Set correct bandwidth for datarate RX
 	if (baud <= 19200) {
@@ -179,15 +188,19 @@ void RF12B::setChannel(uint8_t channel) {
 }
 
 void RF12B::send(byte * buf, byte length) {
-	changeMode(TX);
-  
+	unsigned long t= micros();
 	status();
-	rfSend(0xAA); // PREAMBLE
-	rfSend(0xAA);
-	rfSend(0xAA);
+	changeMode(TX);
 
+	rfSend(0xAA); // PREAMBLE
+
+	rfSend(0xAA);
+	rfSend(0xAA);
+	
 	rfSend(0x2D); // SYNC
 	rfSend(_pan_id);
+	
+  
 
 	rfSend(length+1);
 	//Serial.println("SENDING:");
@@ -206,7 +219,12 @@ void RF12B::send(byte * buf, byte length) {
 	changeMode(RX);
 	//delay(5);
 	status();
+	unsigned long t2= micros()-t ;
+	Serial.print("Time:");
+	Serial.println(t2);
 }
+
+
 
 /*void RF12B::sendPacket(RFPacket *packet) {
 	send((byte *)packet, packet->size());

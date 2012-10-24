@@ -1,6 +1,7 @@
 #define TX 1
 #define RX 0
 #define CS_PIN 10
+#define SDO_PIN 12
 #define NIRQ_PIN 2
 #define nFFS_PIN 3
 #define STATE_LENGTH 1

@@ -6,6 +6,7 @@
 #include "Arduino.h"
 #include "rf12b_def.h"
 #include "rf_packet.h"
+//#include "digitalWriteFast.h"
 
 
 class RF12B {
@@ -18,13 +19,14 @@ class RF12B {
 		void send(byte * buf, byte length);
 		RFPacket recvPacket();	
 	    void setFrequency(float freq = 868.0);
-		void setDatarate(uint16_t baud);
+		void setDatarate(uint32_t baud);
 		void setOutputPower(uint8_t p);
 		void setChannel(uint8_t channel);
 		void setPanID(byte pan_id);
 		void rxISR();
 		void disableISR();
 		void enableISR();
+		void onoff(int state);
 	private:
 		volatile int _mode;
 		bool _rfa;
