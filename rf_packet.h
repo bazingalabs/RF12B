@@ -58,6 +58,12 @@ class RFPacket {
 		bool valid();
 		void dump();
 		byte dataSize();
+        int16_t readInt16();
+        uint16_t readUint16();
+        int8_t readInt8();
+        uint8_t readUint8();
+        char readChar();
+        void readString(byte buf[], byte size);
 	    inline operator const char *() {
 	    	rfpacket.p.data[dataSize()] = '\0';
 			return (char *)rfpacket.p.data; 
@@ -87,6 +93,7 @@ class RFPacket {
 		uint16_t _rcrc;
 		uint8_t _type;
 		bool _valid;
+        uint8_t* read_ptr;
 };
 
 #endif

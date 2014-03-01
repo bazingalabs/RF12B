@@ -33,7 +33,8 @@ RFPacket::RFPacket(byte * buf, byte length, byte id, uint16_t seq, byte type) {
 	for (int i = 0; i < rfpacket.p.size; ++i) {
 		crc = crc8(crc,rfpacket.buf[i]);
 	}
-	rfpacket.p.crc = crc;    
+	rfpacket.p.crc = crc;
+    read_ptr = rfpacket.p.data;  
 }
 
 
@@ -67,7 +68,9 @@ RFPacket::RFPacket(CircularBuffer<byte,200> *  buf, byte size, byte id, uint16_t
 	for (int i = 0; i < rfpacket.p.size; ++i) {
 		crc = crc8(crc,rfpacket.buf[i]);
 	}
-	rfpacket.p.crc = crc;    
+	rfpacket.p.crc = crc;   
+    
+    read_ptr = rfpacket.p.data;   
 }
 
 
@@ -85,6 +88,8 @@ void RFPacket::parse(byte * buf,byte size) {
 		}
 	}
 	_rcrc = crc;
+    
+    read_ptr = rfpacket.p.data;
 }
 
 uint8_t RFPacket::size() {
@@ -131,6 +136,41 @@ uint16_t RFPacket::getSeq() {
 
 void RFPacket::getData(byte buf[], byte size) {
 	memcpy(buf, rfpacket.p.data,size);
+}
+
+int16_t RFPacket::readInt16() {
+    int16_t ret;
+    ret = (*(int16_t *) read_ptr);
+    read_ptr += sizeof(int16_t);
+    return ret;
+}
+uint16_t RFPacket::readUint16() {
+    uint16_t ret;
+    ret = (*(uint16_t *) read_ptr);
+    read_ptr += sizeof(uint16_t);
+    return ret;
+}
+int8_t RFPacket::readInt8(){
+    int8_t ret;
+    ret = (*(int8_t *) read_ptr);
+    read_ptr += sizeof(int8_t);
+    return ret;
+}
+uint8_t RFPacket::readUint8(){
+    uint8_t ret;
+    ret = (*(uint8_t *) read_ptr);
+    read_ptr += sizeof(uint8_t);
+    return ret;
+}
+char RFPacket::readChar(){
+    int8_t ret;
+    ret = (*(int8_t *) read_ptr);
+    read_ptr += sizeof(int8_t);
+    return ret;
+}
+void RFPacket::readString(byte buf[], byte size) {
+	memcpy(buf, read_ptr,size);
+    read_ptr += size;
 }
 
 void RFPacket::dump() {

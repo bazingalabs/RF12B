@@ -220,8 +220,8 @@ void RF12B::send(byte * buf, byte length) {
 	//delay(5);
 	status();
 	unsigned long t2= micros()-t ;
-	Serial.print("Time:");
-	Serial.println(t2);
+	//Serial.print("Time:");
+	//Serial.println(t2);
 }
 
 
